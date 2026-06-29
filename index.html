@@ -39,7 +39,7 @@
 <main id="main-content">
 
 <section class="hero" aria-labelledby="hero-heading">
-  <p class="hero-kicker">saf.ai, Inc. · Ottawa, ON · Founded 2018</p>
+  <p class="hero-kicker" id="hero-kicker">saf.ai, Inc. · Ottawa, ON · Founded 2018</p>
   <h1 id="hero-heading">Data that<br><em>defends</em><br>itself.</h1>
   <p class="hero-sub">
     Resiliate is the first AI-enhanced self-defending filesystem. Built on
@@ -308,6 +308,33 @@
     var ann = document.getElementById('print-announce');
     if (ann) ann.textContent = '';
   });
+}());
+
+/* Org location: URL param takes priority, geo as fallback
+   ?org=us  → Delaware (US govt/defence audience)
+   default  → Ottawa, ON */
+(function () {
+  var kicker = document.getElementById('hero-kicker');
+  if (!kicker) return;
+
+  function setDelaware() {
+    kicker.textContent = 'saf.ai, Inc. \u00b7 Delaware \u00b7 Founded 2018';
+  }
+
+  /* 1. Check URL param first */
+  var param = new URLSearchParams(window.location.search).get('org');
+  if (param && param.toLowerCase() === 'us') {
+    setDelaware();
+    return;
+  }
+
+  /* 2. Geo fallback — non-blocking, silent on error */
+  fetch('https://ipapi.co/json/')
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d && d.country_code === 'US') setDelaware();
+    })
+    .catch(function () { /* fail silently, Ottawa stays */ });
 }());
 </script>
 
